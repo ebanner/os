@@ -1,10 +1,12 @@
 ;;
 ;; Set up the stack
 ;;
+;; Make the stack take up all of conventional lower memory (up to 0x7c00 where the bootloader is loaded)
+;;
 
-mov ax, 0x0050
-mov ss, ax      ; Start the stack at 0x0500
-mov sp, 0x00ff  ; Give the stack 255 bytes
+mov ax, 0x0050  ; Start the stack at 0x0500 = 16 * 0x0500
+mov ss, ax
+mov sp, 0x7700  ; Gets us all the way to 0x7c00 (where the bootloader is)
 
 
 ;;
@@ -18,14 +20,14 @@ push ax         ; Push the value in AX onto the stack
 ;;
 mov ax, ss       ; Load SS (0x0050) into AX
 mov ds, ax       ; Set DS to point to the stack segment (0x0050)
-mov ax, [0x00fd] ; Load the value at the memory address that we just used to push onto the stack
+mov ax, [0x76fe] ; Load the value at the memory address that we just used to push onto the stack minus 2
 
 
 ;; 
 ;; Read the first bit at memory address 0
 ;;
 
-mov cl, ah  ; Load 0xaa into CL
+mov cl, ah
 
 
 ;;
@@ -221,7 +223,7 @@ next:
   mov al, ' '                   ; Load '1' ASCII code into AL
   int 0x10                      ; Print ' '
 
-  mov ax, [0x00fd] ; Load the value at the memory address that we just used to push onto the stack
+  mov ax, [0x76fe] ; Load the value at the memory address that we just used to push onto the stack minus 2
   mov cl, al
 
 

@@ -1,94 +1,83 @@
-[ORG 0x7C00]                    ; Boot sector starts at memory address 0x7C00
+[ORG 0x7C00]
 
 
-mov cl, 0x12
+;;
+;; Set up the stack
+;;
+
+mov ax, 0x0050  ; Start the stack at 0x0500 = 16 * 0x0500
+mov ss, ax
+mov sp, 0x7700  ; Gets us all the way to 0x7c00 (where the bootloader is)
 
 
-bit1:
-  mov bl, cl                    ; Copy CL to BL
-  and bl, 0x80                  ; Mask to get the first bit
-  cmp bl, 0x80                  ; Compare BL to 1
-  mov dx, bit2                  ; Say where to jump back to
-  je print_one                  ; Jump if equal (bit is 1)
-  jne print_zero                ; Jump if it's zero
+print_byte:
+  mov byte [BIT_VAR], 1 ;
+  call print_bit        ; Print first bit of [BYTE_VAR]
 
-bit2:
-  mov bl, cl                    ; Copy CL to BL
-  and bl, 0x40                  ; Mask to get the first bit
-  cmp bl, 0x40                  ; Compare BL to 1
-  mov dx, bit3                  ; Say where to jump back to
-  je print_one                  ; Jump if equal (bit is 1)
-  jne print_zero                ; Jump if it's zero
+  mov byte [BIT_VAR], 2 ;
+  call print_bit        ; Print second bit of [BYTE_VAR]
 
-bit3:
-  mov bl, cl                    ; Copy CL to BL
-  and bl, 0x20                  ; Mask to get the first bit
-  cmp bl, 0x20                  ; Compare BL to 1
-  mov dx, bit4                  ; Say where to jump back to
-  je print_one                  ; Jump if equal (bit is 1)
-  jne print_zero                ; Jump if it's zero
+  mov byte [BIT_VAR], 3 ;
+  call print_bit        ; Print third bit of [BYTE_VAR]
 
-bit4:
-  mov bl, cl                    ; Copy CL to BL
-  and bl, 0x10                  ; Mask to get the first bit
-  cmp bl, 0x10                  ; Compare BL to 1
-  mov dx, bit5                  ; Say where to jump back to
-  je print_one                  ; Jump if equal (bit is 1)
-  jne print_zero                ; Jump if it's zero
+  mov byte [BIT_VAR], 4 ;
+  call print_bit        ; Print forth bit of [BYTE_VAR]
 
-bit5:
-  mov bl, cl                    ; Copy CL to BL
-  and bl, 0x08                  ; Mask to get the first bit
-  cmp bl, 0x08                  ; Compare BL to 1
-  mov dx, bit6                  ; Say where to jump back to
-  je print_one                  ; Jump if equal (bit is 1)
-  jne print_zero                ; Jump if it's zero
+  mov byte [BIT_VAR], 5 ;
+  call print_bit        ; Print fifth bit of [BYTE_VAR]
 
-bit6:
-  mov bl, cl                    ; Copy CL to BL
-  and bl, 0x04                  ; Mask to get the first bit
-  cmp bl, 0x04                  ; Compare BL to 1
-  mov dx, bit7                  ; Say where to jump back to
-  je print_one                  ; Jump if equal (bit is 1)
-  jne print_zero                ; Jump if it's zero
+  mov byte [BIT_VAR], 6 ;
+  call print_bit        ; Print sixth bit of [BYTE_VAR]
 
-bit7:
-  mov bl, cl                    ; Copy CL to BL
-  and bl, 0x02                  ; Mask to get the first bit
-  cmp bl, 0x02                  ; Compare BL to 1
-  mov dx, bit8                  ; Say where to jump back to
-  je print_one                  ; Jump if equal (bit is 1)
-  jne print_zero                ; Jump if it's zero
+  mov byte [BIT_VAR], 7 ;
+  call print_bit        ; Print seventh bit of [BYTE_VAR]
 
-bit8:
-  mov bl, cl                    ; Copy CL to BL
-  and bl, 0x01                  ; Mask to get the first bit
-  cmp bl, 0x01                  ; Compare BL to 1
-  mov dx, done                  ; Say where to jump back to
-  je print_one                  ; Jump if equal (bit is 1)
-  jne print_zero                ; Jump if it's zero
+  mov byte [BIT_VAR], 8 ;
+  call print_bit        ; Print eighth bit of [BYTE_VAR]
+
+  jmp done
 
 
-print_zero:
-  mov ah, 0x0E                  ; BIOS Teletype Output function
-  mov al, '0'                   ; Load '0' ASCII code into AL
-  int 0x10                      ; Print '1'
-  jmp dx                        ; Jump to end
+print_bit:
+  mov cl, 8
+  mov bl, [BIT_VAR]
+  sub cl, bl
+  mov al, [BYTE_VAR]
+  shr al, cl
+
+  and al, 1
+  cmp al, 1
+  mov dx, print_bit_return
+  je print_one
+  jne print_zero
+print_bit_return:
+  ret
 
 
 print_one:
   mov ah, 0x0E                  ; BIOS Teletype Output function
   mov al, '1'                   ; Load '1' ASCII code into AL
   int 0x10                      ; Print '1'
-  jmp dx                        ; Jump to end
+  jmp dx
+
+
+print_zero:
+  mov ah, 0x0E                  ; BIOS Teletype Output function
+  mov al, '0'                   ; Load '1' ASCII code into AL
+  int 0x10                      ; Print '0'
+  jmp dx
 
 
 done:
   mov ah, 0x0E                  ; BIOS Teletype Output function
   mov al, '.'                   ; Load '1' ASCII code into AL
   int 0x10                      ; Print '1'
-
   jmp $
+
+
+GLOBAL_VARIABLES:
+  BIT_VAR db 0
+  BYTE_VAR db 0xfe
 
 
 ;;
@@ -97,4 +86,3 @@ done:
 
 times 510-($-$$) db 0           ; Pad the rest of the boot sector with zeros
 db 0x55, 0xaa                   ; Boot signature
-

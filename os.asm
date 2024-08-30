@@ -10,6 +10,28 @@ mov ss, ax
 mov sp, 0x7700  ; Gets us all the way to 0x7c00 (where the bootloader is)
 
 
+main:
+  mov word [WORD_VAR], 0xdead
+  jmp print_word
+  jmp done
+
+
+print_word:
+  mov ax, [WORD_VAR]
+  mov [BYTE_VAR], ah
+  call print_byte
+
+  mov ah, 0x0E                  ; BIOS Teletype Output function
+  mov al, ' '                   ; Load '1' ASCII code into AL
+  int 0x10                      ; Print '1'
+
+  mov ax, [WORD_VAR]
+  mov [BYTE_VAR], al
+  call print_byte
+
+  ret
+
+
 print_byte:
   mov byte [BIT_VAR], 1 ;
   call print_bit        ; Print first bit of [BYTE_VAR]
@@ -23,6 +45,10 @@ print_byte:
   mov byte [BIT_VAR], 4 ;
   call print_bit        ; Print forth bit of [BYTE_VAR]
 
+  mov ah, 0x0E          ; BIOS Teletype Output function
+  mov al, ' '           ; Load '1' ASCII code into AL
+  int 0x10              ; Print '1'
+
   mov byte [BIT_VAR], 5 ;
   call print_bit        ; Print fifth bit of [BYTE_VAR]
 
@@ -35,7 +61,7 @@ print_byte:
   mov byte [BIT_VAR], 8 ;
   call print_bit        ; Print eighth bit of [BYTE_VAR]
 
-  jmp done
+  ret
 
 
 print_bit:
@@ -78,6 +104,7 @@ done:
 GLOBAL_VARIABLES:
   BIT_VAR db 0
   BYTE_VAR db 0xfe
+  WORD_VAR dw 0x0000
 
 
 ;;

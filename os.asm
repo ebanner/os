@@ -11,10 +11,17 @@ mov sp, 0x7700  ; Gets us all the way to 0x7c00 (where the bootloader is)
 
 
 main:
-  mov word [WORD_VAR], 0xdead
-  jmp print_word
+  mov byte [CHAR_VAR], 'A'
+  call print_char
   jmp done
 
+
+print_char:
+  mov ah, 0x0E                  ; BIOS Teletype Output function
+  mov al, [CHAR_VAR]            ; Load '1' ASCII code into AL
+  int 0x10                      ; Print '1'
+  ret
+  
 
 print_word:
   mov ax, [WORD_VAR]
@@ -105,6 +112,7 @@ GLOBAL_VARIABLES:
   BIT_VAR db 0
   BYTE_VAR db 0xfe
   WORD_VAR dw 0x0000
+  CHAR_VAR db 0
 
 
 ;;

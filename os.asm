@@ -10,30 +10,39 @@ mov ss, ax
 mov sp, 0x7700  ; Gets us all the way to 0x7c00 (where the bootloader is)
 
 
-; main:
-;   mov byte [DIGIT_VAR], 9
-;   call print_digit
-;   jmp done
-
-
-; main:
-;   mov byte [BYTE_VAR], 0xff
-;   call print_byte
-;   jmp done
-
 main:
-  mov byte [BYTE_VAR], 0xfe
-  call print_byte_hex
+  mov word [ADDRESS_VAR], sp
+  call print_address
+
+  push 0xff
+
+  mov byte [CHAR_VAR], ' '
+  call print_char
+
+  mov word [ADDRESS_VAR], sp
+  call print_address
+
   jmp done
 
 
-
-print_byte_hex:
+print_address:
   mov byte [CHAR_VAR], '0'
   call print_char
   mov byte [CHAR_VAR], 'x'
   call print_char
 
+  mov ax, [ADDRESS_VAR]   ; Print high byte
+  mov byte [BYTE_VAR], ah
+  call print_byte_hex
+
+  mov ax, [ADDRESS_VAR]   ; Print low byte
+  mov byte [BYTE_VAR], al
+  call print_byte_hex
+
+  ret
+
+
+print_byte_hex:
   mov al, [BYTE_VAR]
 
   and al, 0xf0  ; Get high nibble
@@ -51,7 +60,7 @@ print_byte_hex_high_nibble_return:
   jl print_digit_wrapper
   jmp print_char_wrapper
 print_byte_hex_low_nibble_return:
-  jmp done
+  ret
 
 
 print_digit_wrapper:
@@ -153,11 +162,12 @@ done:
 
 
 GLOBAL_VARIABLES:
-  BIT_VAR db 0
-  BYTE_VAR db 0xfe
-  WORD_VAR dw 0x0000
-  CHAR_VAR db 0
-  DIGIT_VAR db 0
+  BIT_VAR db 0       ; for calling print_bit
+  BYTE_VAR db 0xfe   ; for calling print_byte and print_byte_hex
+  WORD_VAR dw 0x0000 ; for calling print_word
+  CHAR_VAR db 0      ; for calling print_char
+  DIGIT_VAR db 0     ; for calling print_digit
+  ADDRESS_VAR dw 0   ; for calling print_byte_at_address
 
 
 ;;

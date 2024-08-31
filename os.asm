@@ -16,10 +16,55 @@ mov sp, 0x7700  ; Gets us all the way to 0x7c00 (where the bootloader is)
 ;   jmp done
 
 
+; main:
+;   mov byte [BYTE_VAR], 0xff
+;   call print_byte
+;   jmp done
+
 main:
-  mov byte [BYTE_VAR], 0xff
-  call print_byte
+  mov byte [BYTE_VAR], 0xfe
+  call print_byte_hex
   jmp done
+
+
+
+print_byte_hex:
+  mov byte [CHAR_VAR], '0'
+  call print_char
+  mov byte [CHAR_VAR], 'x'
+  call print_char
+
+  mov al, [BYTE_VAR]
+
+  and al, 0xf0  ; Get high nibble
+  shr al, 4
+  cmp al, 10
+  mov dx, print_byte_hex_high_nibble_return
+  jl print_digit_wrapper
+  jmp print_char_wrapper
+print_byte_hex_high_nibble_return:
+  mov al, [BYTE_VAR]
+
+  and al, 0x0f  ; Get low nibble
+  cmp al, 10
+  mov dx, print_byte_hex_low_nibble_return
+  jl print_digit_wrapper
+  jmp print_char_wrapper
+print_byte_hex_low_nibble_return:
+  jmp done
+
+
+print_digit_wrapper:
+  mov byte [DIGIT_VAR], al
+  call print_digit
+  jmp dx
+
+
+print_char_wrapper:
+  add al, 87              ; 10 -> 97 = a, 11 -> 98 = b, ..., 15 -> 102 = f
+  mov byte [CHAR_VAR], al
+  call print_char
+  jmp dx
 
 
 print_char:

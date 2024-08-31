@@ -10,9 +10,15 @@ mov ss, ax
 mov sp, 0x7700  ; Gets us all the way to 0x7c00 (where the bootloader is)
 
 
+; main:
+;   mov byte [DIGIT_VAR], 9
+;   call print_digit
+;   jmp done
+
+
 main:
-  mov byte [CHAR_VAR], 'A'
-  call print_char
+  mov byte [BYTE_VAR], 0xff
+  call print_byte
   jmp done
 
 
@@ -74,31 +80,24 @@ print_byte:
 print_bit:
   mov cl, 8
   mov bl, [BIT_VAR]
-  sub cl, bl
+  sub cl, bl           ; 8 - i
   mov al, [BYTE_VAR]
-  shr al, cl
+  shr al, cl           ; Shift by the number of digits to get the bit to the end
 
   and al, 1
-  cmp al, 1
   mov dx, print_bit_return
-  je print_one
-  jne print_zero
+  mov [DIGIT_VAR], al
+  call print_digit
 print_bit_return:
   ret
 
 
-print_one:
-  mov ah, 0x0E                  ; BIOS Teletype Output function
-  mov al, '1'                   ; Load '1' ASCII code into AL
-  int 0x10                      ; Print '1'
-  jmp dx
-
-
-print_zero:
-  mov ah, 0x0E                  ; BIOS Teletype Output function
-  mov al, '0'                   ; Load '1' ASCII code into AL
-  int 0x10                      ; Print '0'
-  jmp dx
+print_digit:
+  mov al, [DIGIT_VAR]
+  add al, 48
+  mov byte [CHAR_VAR], al
+  call print_char
+  ret
 
 
 done:
@@ -113,6 +112,7 @@ GLOBAL_VARIABLES:
   BYTE_VAR db 0xfe
   WORD_VAR dw 0x0000
   CHAR_VAR db 0
+  DIGIT_VAR db 0
 
 
 ;;

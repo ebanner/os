@@ -1,5 +1,6 @@
 # os
 
-Read first sector from disk
+Print a character to the screen
 
-<img width="738" alt="image" src="https://github.com/user-attachments/assets/4db70a92-03a0-4bc3-ae2c-b5135b50396c">
+<img width="794" alt="image" src="https://github.com/user-attachments/assets/f149085e-2af0-4dc8-b492-9dfc815b37b8">
+

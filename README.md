@@ -1,5 +1,15 @@
 # os
 
-Read first sector from disk
+Boot minimal OS with qemu
 
-<img width="738" alt="image" src="https://github.com/user-attachments/assets/4db70a92-03a0-4bc3-ae2c-b5135b50396c">
+<img width="890" alt="image" src="https://github.com/user-attachments/assets/c6e95f46-4abb-4790-a3b9-90e366f4be8c">
+
+## Running
+
+```
+$ make
+```
+
+## Quitting
+
+Type `C-x a` to exit from qemu `-nographic` mode

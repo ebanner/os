@@ -12,4 +12,4 @@ $ make
 
 ## Quitting
 
-Type `C-a x` to exit from qemu `-nographic` mode
+Type `C-a x` to exit from qemu `-nographic` mode.
